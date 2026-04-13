@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game Lab</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #0b1020;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      margin-bottom: 40px;
+      font-size: 2.4rem;
+      letter-spacing: 2px;
+    }
+
+    .games {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .game-card {
+      width: 300px;
+      height: 300px;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      color: #fff;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .game-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+    }
+
+    .game-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .game-card .label {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      padding: 12px;
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.65);
+    }
+  </style>
+</head>
+<body>
+  <h1>Game Lab</h1>
+  <div class="games">
+    <a href="space_invaders.html" class="game-card">
+      <img src="assets/images/space_invaders.png" alt="Space Invaders" />
+      <span class="label">Space Invaders</span>
+    </a>
+    <a href="vegetarian snake.html" class="game-card">
+      <img src="assets/images/vegetarian_snake.png" alt="The Vegetarian Snake" />
+      <span class="label">The Vegetarian Snake</span>
+    </a>
+  </div>
+</body>
+</html>
