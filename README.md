@@ -1,52 +1,36 @@
-# Space Invaders
+# Game Lab – Spiele bauen, Webentwicklung lernen
 
 🇬🇧 [English version](README.en.md)
 
-Ein klassisches Space-Invaders-Spiel, entwickelt mit [Phaser 3](https://phaser.io/). Dieses Projekt wurde als Lehrprojekt erstellt, um einem 12-jährigen Schüler Spieledesign und -entwicklung näherzubringen.
+Eine wachsende Sammlung kleiner Browserspiele, entwickelt mit [Phaser 3](https://phaser.io/). Dieses Projekt entsteht im Rahmen eines Programmierkurses, um jungen Lernenden Webentwicklung und Spieledesign beizubringen.
 
 ## Über das Projekt
 
-Dieses Projekt dient als praktisches Lernwerkzeug, um grundlegende Konzepte der Spieleentwicklung auf eine unterhaltsame und verständliche Weise zu vermitteln. Durch den schrittweisen Aufbau eines bekannten Arcade-Spiels lernt der Schüler:
+Jedes Spiel führt neue Konzepte ein und baut auf dem Gelernten auf. Durch das Erstellen bekannter Spieleklassiker lernen die Schüler Schritt für Schritt:
 
+- **HTML, CSS & JavaScript** — Grundlagen der Webentwicklung
 - **Game Loop** — wie `update()` die Logik Bild für Bild steuert
-- **Spielereingaben** — Tastatursteuerung für Bewegung und Schießen
-- **Physik & Kollisionserkennung** — Einsatz von Phasers Arcade Physics für Kugeln, Aliens und den Spieler
+- **Spielereingaben** — Tastatursteuerung für Bewegung und Aktionen
+- **Physik & Kollisionserkennung** — Einsatz von Phasers Arcade Physics
 - **Spielzustandsverwaltung** — Punktestand, Game-Over-Bedingungen und Neustart
-- **Sprite- und Texturverwaltung** — Laden und Anzeigen von Bildern, Explosionen und Hintergründen
-- **Gegner-KI** — Bewegungsmuster der Alien-Formation und zeitgesteuerter Beschuss
+- **Sprite- und Texturverwaltung** — Laden und Anzeigen von Bildern und Animationen
+- **Gegner-KI & Spiellogik** — Bewegungsmuster, Zufallselemente und Schwierigkeitsgrad
 
-## Steuerung
+## Spiele
 
-| Taste | Aktion |
-|-------|--------|
-| `←` `→` | Raumschiff bewegen |
-| `Leertaste` | Schießen |
-| `R` | Neustart |
-
-Zerstöre alle 18 Aliens, bevor sie den unteren Bildschirmrand erreichen. Weiche dem feindlichen Beschuss aus!
+| Spiel | Beschreibung |
+|-------|-------------|
+| [Space Invaders](space_invaders.html) | Klassisches Arcade-Shooter – Aliens abschießen, bevor sie landen |
+| [The Vegetarian Snake](vegetarian%20snake.html) | Eine pflanzenliebende Variante des Snake-Klassikers |
 
 ## Technologien
 
 - **Phaser 3** (per CDN geladen)
-- Vanilla JavaScript (kein Build-Tool oder Bundler nötig)
-- Einfache Dateistruktur für gute Lesbarkeit
+- Vanilla HTML, CSS & JavaScript
+- Kein Build-Tool oder Bundler nötig – einfach im Browser öffnen
 
 ## Erste Schritte
 
 1. Repository klonen
-2. `index.html` im Browser öffnen (oder einen lokalen Server wie Live Server verwenden)
+2. Eine beliebige `.html`-Datei im Browser öffnen (oder einen lokalen Server wie Live Server verwenden)
 3. Spielen!
-
-## Projektstruktur
-
-```
-index.html          # Einstiegspunkt
-js/
-  globals.js        # Spielkonstanten und gemeinsame Variablen
-  graphics.js       # Texturen und Hintergrund
-  aliens.js         # Alien-Formation, Bewegung und Randerkennung
-  bullets.js        # Spieler- und Gegner-Kugellogik
-  scene.js          # Phaser-Szene (preload, create, update)
-  main.js           # Phaser-Spielkonfiguration und Start
-assets/images/      # Sprites: Raumschiff, Alien, Hintergrund, Explosionen
-```

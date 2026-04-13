@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Vegetarian Snake</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, #f3ffe8 0%, #d8f3c7 100%);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    #game-wrapper {
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      color: #2d6a2e;
+      letter-spacing: 1px;
+      font-size: 2rem;
+    }
+
+    p {
+      margin: 0 0 14px;
+      color: #355e3b;
+      font-size: 0.95rem;
+    }
+
+    canvas {
+      border: 4px solid #2d6a2e;
+      border-radius: 14px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.14);
+    }
+  </style>
+</head>
+<body>
+  <div id="game-wrapper">
+    <h1>The Vegetarian Snake</h1>
+    <p>Use arrow keys or WASD. Eat apples, avoid the mouse! Press SPACE to restart after game over.</p>
+    <div id="game"></div>
+  </div>
+
+  <script>
+    const CELL_SIZE = 24;
+    const COLS = 24;
+    const ROWS = 20;
+    const WIDTH = COLS * CELL_SIZE;
+    const HEIGHT = ROWS * CELL_SIZE;
+
+    const config = {
+      type: Phaser.AUTO,
+      width: WIDTH,
+      height: HEIGHT,
+      parent: 'game',
+      backgroundColor: '#cfeeb7',
+      scene: {
+        preload,
+        create,
+        update
+      }
+    };
+
+    const game = new Phaser.Game(config);
+
+    let snake = [];
+    let direction = 'RIGHT';
+    let nextDirection = 'RIGHT';
+    let apple = { x: 0, y: 0 };
+    let mouse = { x: 0, y: 0 };
+    let moveTimer = 0;
+    let moveDelay = 130;
+    let score = 0;
+    let scoreText;
+    let titleText;
+    let gameOver = false;
+    let gameOverText;
+    let eatMoreText;
+    let restartText;
+    let cursors;
+    let keys;
+    let snakeGraphics;
+    let appleGraphics;
+    let mouseGraphics;
+
+    function preload() {}
+
+    function create() {
+      cursors = this.input.keyboard.createCursorKeys();
+      keys = this.input.keyboard.addKeys('W,A,S,D,SPACE');
+
+      drawBackgroundGrid(this);
+
+      scoreText = this.add.text(12, 10, 'Score: 0', {
+        fontSize: '24px',
+        color: '#214d22',
+        fontStyle: 'bold'
+      }).setDepth(10);
+
+      titleText = this.add.text(WIDTH - 12, 12, 'Vegetarian Snake', {
+        fontSize: '18px',
+        color: '#356d35',
+        fontStyle: 'bold'
+      }).setOrigin(1, 0).setDepth(10);
+
+      snakeGraphics = this.add.graphics();
+      appleGraphics = this.add.graphics();
+      mouseGraphics = this.add.graphics();
+
+      gameOverText = this.add.text(WIDTH / 2, HEIGHT / 2 - 30, 'GAME OVER', {
+        fontSize: '42px',
+        color: '#8b1e1e',
+        fontStyle: 'bold',
+        stroke: '#ffffff',
+        strokeThickness: 5
+      }).setOrigin(0.5).setVisible(false).setDepth(20);
+
+      eatMoreText = this.add.text(WIDTH / 2, HEIGHT / 2 + 12, 'eat more veggies', {
+        fontSize: '22px',
+        color: '#2d6a2e',
+        fontStyle: 'bold',
+        stroke: '#ffffff',
+        strokeThickness: 4
+      }).setOrigin(0.5).setVisible(false).setDepth(20);
+
+      restartText = this.add.text(WIDTH / 2, HEIGHT / 2 + 46, 'Press SPACE to restart', {
+        fontSize: '20px',
+        color: '#214d22',
+        fontStyle: 'bold',
+        stroke: '#ffffff',
+        strokeThickness: 4
+      }).setOrigin(0.5).setVisible(false).setDepth(20);
+
+      resetGame();
+    }
+
+    function update(time, delta) {
+      handleInput();
+
+      if (gameOver) {
+        if (Phaser.Input.Keyboard.JustDown(keys.SPACE)) {
+          resetGame();
+        }
+        return;
+      }
+
+      moveTimer += delta;
+      if (moveTimer >= moveDelay) {
+        moveTimer = 0;
+        moveSnake();
+        render();
+      }
+    }
+
+    function resetGame() {
+      snake = [
+        { x: 6, y: 10 },
+        { x: 5, y: 10 },
+        { x: 4, y: 10 }
+      ];
+
+      direction = 'RIGHT';
+      nextDirection = 'RIGHT';
+      score = 0;
+      moveDelay = 130;
+      moveTimer = 0;
+      gameOver = false;
+
+      scoreText.setText('Score: 0');
+      gameOverText.setVisible(false);
+      eatMoreText.setVisible(false);
+      restartText.setVisible(false);
+
+      placeApple();
+      placeMouse();
+      render();
+    }
+
+    function handleInput() {
+      if ((Phaser.Input.Keyboard.JustDown(cursors.left) || Phaser.Input.Keyboard.JustDown(keys.A)) && direction !== 'RIGHT') {
+        nextDirection = 'LEFT';
+      } else if ((Phaser.Input.Keyboard.JustDown(cursors.right) || Phaser.Input.Keyboard.JustDown(keys.D)) && direction !== 'LEFT') {
+        nextDirection = 'RIGHT';
+      } else if ((Phaser.Input.Keyboard.JustDown(cursors.up) || Phaser.Input.Keyboard.JustDown(keys.W)) && direction !== 'DOWN') {
+        nextDirection = 'UP';
+      } else if ((Phaser.Input.Keyboard.JustDown(cursors.down) || Phaser.Input.Keyboard.JustDown(keys.S)) && direction !== 'UP') {
+        nextDirection = 'DOWN';
+      }
+    }
+
+    function moveSnake() {
+      direction = nextDirection;
+
+      const head = { ...snake[0] };
+
+      if (direction === 'LEFT') head.x -= 1;
+      if (direction === 'RIGHT') head.x += 1;
+      if (direction === 'UP') head.y -= 1;
+      if (direction === 'DOWN') head.y += 1;
+
+      const hitWall = head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS;
+      const hitSelf = snake.some(segment => segment.x === head.x && segment.y === head.y);
+
+      if (hitWall || hitSelf) {
+        endGame();
+        return;
+      }
+
+      snake.unshift(head);
+
+      const ateMouse = head.x === mouse.x && head.y === mouse.y;
+      if (ateMouse) {
+        endGame();
+        return;
+      }
+
+      const ateApple = head.x === apple.x && head.y === apple.y;
+
+      if (ateApple) {
+        score += 1;
+        scoreText.setText(`Score: ${score}`);
+        placeApple();
+        placeMouse();
+
+        if (moveDelay > 70) {
+          moveDelay -= 3;
+        }
+      } else {
+        snake.pop();
+      }
+    }
+
+    function endGame() {
+      gameOver = true;
+      gameOverText.setVisible(true);
+      eatMoreText.setVisible(true);
+      restartText.setVisible(true);
+    }
+
+    function placeApple() {
+      let validPosition = false;
+
+      while (!validPosition) {
+        apple.x = Phaser.Math.Between(0, COLS - 1);
+        apple.y = Phaser.Math.Between(0, ROWS - 1);
+
+        const onSnake = snake.some(segment => segment.x === apple.x && segment.y === apple.y);
+        const onMouse = apple.x === mouse.x && apple.y === mouse.y;
+        validPosition = !onSnake && !onMouse;
+      }
+    }
+
+    function placeMouse() {
+      let validPosition = false;
+
+      while (!validPosition) {
+        mouse.x = Phaser.Math.Between(0, COLS - 1);
+        mouse.y = Phaser.Math.Between(0, ROWS - 1);
+
+        const onSnake = snake.some(segment => segment.x === mouse.x && segment.y === mouse.y);
+        const onApple = mouse.x === apple.x && mouse.y === apple.y;
+        validPosition = !onSnake && !onApple;
+      }
+    }
+
+    function render() {
+      snakeGraphics.clear();
+      appleGraphics.clear();
+      mouseGraphics.clear();
+
+      drawApple();
+      drawMouse();
+      drawSnake();
+    }
+
+    function drawSnake() {
+      snake.forEach((segment, index) => {
+        const x = segment.x * CELL_SIZE;
+        const y = segment.y * CELL_SIZE;
+        const padding = 2;
+        const size = CELL_SIZE - padding * 2;
+
+        snakeGraphics.fillStyle(index === 0 ? 0x2d6a2e : 0x40916c, 1);
+        snakeGraphics.fillRoundedRect(x + padding, y + padding, size, size, 7);
+
+        if (index === 0) {
+          snakeGraphics.fillStyle(0xffffff, 1);
+
+          if (direction === 'LEFT' || direction === 'RIGHT') {
+            snakeGraphics.fillCircle(x + (direction === 'RIGHT' ? 16 : 8), y + 8, 2.5);
+            snakeGraphics.fillCircle(x + (direction === 'RIGHT' ? 16 : 8), y + 16, 2.5);
+          } else {
+            snakeGraphics.fillCircle(x + 8, y + (direction === 'DOWN' ? 16 : 8), 2.5);
+            snakeGraphics.fillCircle(x + 16, y + (direction === 'DOWN' ? 16 : 8), 2.5);
+          }
+        }
+      });
+    }
+
+    function drawApple() {
+      const centerX = apple.x * CELL_SIZE + CELL_SIZE / 2;
+      const centerY = apple.y * CELL_SIZE + CELL_SIZE / 2;
+
+      appleGraphics.fillStyle(0xd62828, 1);
+      appleGraphics.fillCircle(centerX, centerY + 1, 8);
+
+      appleGraphics.fillStyle(0x7b2d26, 1);
+      appleGraphics.fillRect(centerX - 1, centerY - 11, 2, 6);
+
+      appleGraphics.fillStyle(0x5c8d1b, 1);
+      appleGraphics.fillEllipse(centerX + 5, centerY - 8, 8, 4);
+    }
+
+    function drawMouse() {
+      const cx = mouse.x * CELL_SIZE + CELL_SIZE / 2;
+      const cy = mouse.y * CELL_SIZE + CELL_SIZE / 2;
+
+      // body
+      mouseGraphics.fillStyle(0x8e8e8e, 1);
+      mouseGraphics.fillEllipse(cx, cy + 1, 16, 12);
+
+      // ears
+      mouseGraphics.fillStyle(0xc4a6a6, 1);
+      mouseGraphics.fillCircle(cx - 5, cy - 5, 3.5);
+      mouseGraphics.fillCircle(cx + 5, cy - 5, 3.5);
+
+      // eyes
+      mouseGraphics.fillStyle(0x111111, 1);
+      mouseGraphics.fillCircle(cx - 3, cy - 1, 1.5);
+      mouseGraphics.fillCircle(cx + 3, cy - 1, 1.5);
+
+      // tail
+      mouseGraphics.lineStyle(1.5, 0xc4a6a6, 1);
+      mouseGraphics.beginPath();
+      mouseGraphics.moveTo(cx, cy + 6);
+      mouseGraphics.lineTo(cx + 4, cy + 10);
+      mouseGraphics.lineTo(cx + 1, cy + 12);
+      mouseGraphics.strokePath();
+    }
+
+    function drawBackgroundGrid(scene) {
+      const g = scene.add.graphics();
+      g.lineStyle(1, 0xb7d89d, 0.7);
+
+      for (let x = 0; x <= WIDTH; x += CELL_SIZE) {
+        g.moveTo(x, 0);
+        g.lineTo(x, HEIGHT);
+      }
+
+      for (let y = 0; y <= HEIGHT; y += CELL_SIZE) {
+        g.moveTo(0, y);
+        g.lineTo(WIDTH, y);
+      }
+
+      g.strokePath();
+    }
+  </script>
+</body>
+</html>
