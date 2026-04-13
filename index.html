@@ -23,9 +23,27 @@
     }
 
     h1 {
-      margin-bottom: 40px;
+      margin-bottom: 16px;
       font-size: 2.4rem;
       letter-spacing: 2px;
+    }
+
+    .description {
+      max-width: 600px;
+      margin-bottom: 40px;
+      text-align: center;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #cfd8ff;
+    }
+
+    .description a {
+      color: #7eb8ff;
+      text-decoration: none;
+    }
+
+    .description a:hover {
+      text-decoration: underline;
     }
 
     .games {
@@ -74,6 +92,10 @@
 </head>
 <body>
   <h1>Game Lab</h1>
+  <p class="description">
+    A growing collection of small browser games built with <a href="https://phaser.io/">Phaser 3</a>.
+    This project is part of a programming course designed to teach young learners web development, game design and artificial intelligence.
+  </p>
   <div class="games">
     <a href="space_invaders.html" class="game-card">
       <img src="assets/images/space_invaders.png" alt="Space Invaders" />
